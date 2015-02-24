@@ -1,0 +1,106 @@
+﻿<Window x:Class="MagickNETColorManagementSample.Views.MainWindow"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:i="http://schemas.microsoft.com/expression/2010/interactivity"
+        xmlns:ei="http://schemas.microsoft.com/expression/2010/interactions"
+        xmlns:l="http://schemas.livet-mvvm.net/2011/wpf"
+        xmlns:v="clr-namespace:MagickNETColorManagementSample.Views"
+        xmlns:vm="clr-namespace:MagickNETColorManagementSample.ViewModels"
+        xmlns:im="clr-namespace:ImageMagick;assembly=Magick.NET-AnyCPU"
+        xmlns:sys="clr-namespace:System;assembly=mscorlib"
+        Title="Magick.NET Color Management Sample" Height="576" Width="1024"
+        AllowDrop="True">
+    
+    <Window.DataContext>
+        <vm:MainWindowViewModel/>
+    </Window.DataContext>
+    
+    <Window.Resources>
+        <ObjectDataProvider x:Key="RenderingIntentList" ObjectType="{x:Type sys:Enum}" MethodName="GetValues">
+            <ObjectDataProvider.MethodParameters>
+                <x:Type TypeName="im:RenderingIntent" />
+            </ObjectDataProvider.MethodParameters>
+        </ObjectDataProvider>
+    </Window.Resources>
+    
+    <i:Interaction.Triggers>
+        <i:EventTrigger EventName="ContentRendered">
+            <l:LivetCallMethodAction MethodTarget="{Binding}" MethodName="Initialize"/>
+        </i:EventTrigger>
+        
+        <i:EventTrigger EventName="Closed">
+            <l:DataContextDisposeAction/>
+        </i:EventTrigger>
+
+        <i:EventTrigger EventName="Drop">
+            <ei:CallMethodAction TargetObject="{Binding}" MethodName="Drop"/>
+        </i:EventTrigger>
+    </i:Interaction.Triggers>
+
+    <Grid>
+        <Grid.ColumnDefinitions>
+            <ColumnDefinition/>
+            <ColumnDefinition Width="Auto"/>
+        </Grid.ColumnDefinitions>
+        
+        <TextBlock Text="Drag &amp; Drop Image Here"
+                   HorizontalAlignment="Center"
+                   VerticalAlignment="Center">
+            <TextBlock.Style>
+                <Style TargetType="{x:Type TextBlock}">
+                    <Setter Property="Visibility" Value="Hidden"/>
+                    <Style.Triggers>
+                        <DataTrigger Binding="{Binding ImageFilePath}" Value="{x:Null}">
+                            <Setter Property="Visibility" Value="Visible"/>
+                        </DataTrigger>
+                    </Style.Triggers>
+                </Style>
+            </TextBlock.Style>
+        </TextBlock>
+        <Image Source="{Binding ImageSource}"/>
+        
+        <Grid Grid.Column="1">
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="Auto"/>
+            </Grid.ColumnDefinitions>
+            <Grid.RowDefinitions>
+                <RowDefinition Height="Auto"/>
+                <RowDefinition Height="Auto"/>
+                <RowDefinition Height="Auto"/>
+                <RowDefinition Height="Auto"/>
+                <RowDefinition Height="Auto"/>
+                <RowDefinition Height="Auto"/>
+                <RowDefinition Height="Auto"/>
+                <RowDefinition/>
+            </Grid.RowDefinitions>
+            
+            <TextBlock Grid.Column="0" Grid.Row="0"
+                       Text="代替ソースプロファイル : "/>
+            <ComboBox Grid.Column="0" Grid.Row="1"
+                      ItemsSource="{Binding LocalProfiles}"
+                      DisplayMemberPath="Name"
+                      SelectedItem="{Binding SubstituteSourceProfile}"/>
+
+            <TextBlock Grid.Column="0" Grid.Row="2"
+                       Text="変換先プロファイル : "/>
+            <ComboBox Grid.Column="0" Grid.Row="3"
+                      ItemsSource="{Binding LocalProfiles}"
+                      DisplayMemberPath="Name"
+                      SelectedItem="{Binding DestinationProfile}"/>
+
+            <TextBlock Grid.Column="0" Grid.Row="4"
+                       Text="レンダリングインテント : "/>
+            <ComboBox Grid.Column="0" Grid.Row="5"
+                      ItemsSource="{Binding Source={StaticResource RenderingIntentList}}"
+                      SelectedItem="{Binding RenderingIntent}"/>
+
+            <StackPanel Grid.Column="0" Grid.Row="6"
+                        Orientation="Horizontal">
+                <TextBlock Text="黒点の補正 : "/>
+                <CheckBox IsChecked="{Binding BlackPointCompensation}"
+                          VerticalAlignment="Center"/>
+            </StackPanel>
+
+        </Grid>
+    </Grid>
+</Window>
